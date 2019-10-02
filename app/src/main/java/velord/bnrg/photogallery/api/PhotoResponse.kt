@@ -4,6 +4,6 @@ import com.google.gson.annotations.SerializedName
 import velord.bnrg.photogallery.model.GalleryItem
 
 class PhotoResponse {
-    @SerializedName("photo")
+    @SerializedName("photos")
     lateinit var galleryItems: List<GalleryItem>
 }

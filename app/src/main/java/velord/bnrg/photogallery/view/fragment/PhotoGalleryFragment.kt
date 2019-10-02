@@ -46,10 +46,7 @@ class PhotoGalleryFragment : Fragment() {
         viewModel.photosWithObserver(
             viewLifecycleOwner,
             Observer { galleryItems ->
-                photoRV.adapter =
-                    PhotoAdapter(
-                        galleryItems
-                    )
+                photoRV.adapter = PhotoAdapter(galleryItems)
             }
         )
     }

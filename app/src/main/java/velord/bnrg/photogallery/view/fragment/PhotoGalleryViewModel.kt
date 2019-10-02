@@ -31,9 +31,4 @@ class PhotoGalleryViewModel : ViewModel() {
     -> LiveData<List<GalleryItem>> = { owner, observer ->
         fetchContentWithObserver(owner, observer, { photos })
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        flickrFetch
-    }
 }
