@@ -1,8 +1,10 @@
-package velord.bnrg.photogallery
+package velord.bnrg.photogallery.view
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import velord.bnrg.photogallery.R
 import velord.bnrg.photogallery.utils.initFragment
+import velord.bnrg.photogallery.view.fragment.PhotoGalleryFragment
 
 class MainActivity : AppCompatActivity() {
 
