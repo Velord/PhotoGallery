@@ -14,7 +14,7 @@ private const val TAG = "PhotoGalleryViewModel"
 class PhotoGalleryViewModel : ViewModel() {
 
     private val pageSize = 100
-    
+
     private var liveDataSource: LiveData<PhotoDataSource>
     var photoPagedList: LiveData<PagedList<Photo>>
 

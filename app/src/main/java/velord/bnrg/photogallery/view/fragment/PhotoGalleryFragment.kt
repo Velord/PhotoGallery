@@ -1,9 +1,11 @@
 package velord.bnrg.photogallery.view.fragment
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.photo_item.view.*
 import velord.bnrg.photogallery.R
 import velord.bnrg.photogallery.model.Photo
+
 
 private const val TAG = "PhotoGalleryFragment"
 
@@ -28,6 +31,23 @@ class PhotoGalleryFragment : Fragment() {
     }
 
     private lateinit var  photoRV: RecyclerView
+
+    private val vto = object :
+        ViewTreeObserver.OnGlobalLayoutListener{
+        override fun onGlobalLayout() {
+            val columnWidthInPixels = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                140f,
+                activity!!.resources.displayMetrics
+            )
+            val width = photoRV.getWidth()
+            val columnNumber = Math.round(width / columnWidthInPixels)
+            photoRV.setLayoutManager(GridLayoutManager(activity, columnNumber))
+            photoRV.getViewTreeObserver().removeOnGlobalLayoutListener(this)
+        }
+    }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +72,9 @@ class PhotoGalleryFragment : Fragment() {
 
     private fun initViews(view: View) {
         photoRV = view.findViewById(R.id.photo_recycler_view)
-        photoRV.layoutManager = GridLayoutManager(context, 3)
+        photoRV.apply {
+            viewTreeObserver.addOnGlobalLayoutListener(vto)
+        }
     }
 
     private class PhotoHolder(view: View)
