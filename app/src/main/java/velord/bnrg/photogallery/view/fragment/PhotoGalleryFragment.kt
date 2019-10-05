@@ -4,14 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.photo_item.view.*
 import velord.bnrg.photogallery.R
-import velord.bnrg.photogallery.model.GalleryItem
+import velord.bnrg.photogallery.model.Photo
 
 private const val TAG = "PhotoGalleryFragment"
 
@@ -34,21 +36,18 @@ class PhotoGalleryFragment : Fragment() {
         return inflater.inflate(
             R.layout.photo_gallery_fragment, container, false).apply {
             initViews(this)
+            initAdapter()
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        loadPhotos()
-    }
-
-    private fun loadPhotos() {
-        viewModel.photosWithObserver(
+    private fun initAdapter() {
+        val photoAdapter = PhotoAdapter()
+        viewModel.photoPagedList.observe(
             viewLifecycleOwner,
-            Observer { galleryItems ->
-                photoRV.adapter = PhotoAdapter(galleryItems)
-            }
-        )
+            Observer {
+            photoAdapter.submitList(it)
+        })
+        photoRV.adapter = photoAdapter
     }
 
     private fun initViews(view: View) {
@@ -56,25 +55,40 @@ class PhotoGalleryFragment : Fragment() {
         photoRV.layoutManager = GridLayoutManager(context, 3)
     }
 
-    private class PhotoHolder(itemTextView: TextView)
-        : RecyclerView.ViewHolder(itemTextView) {
+    private class PhotoHolder(view: View)
+        : RecyclerView.ViewHolder(view) {
 
-        val bindTitle: (CharSequence) -> Unit = itemTextView::setText
+        fun bind(photo: Photo?) {
+            photo?.let {
+                itemView.title.text = photo.title
+            }
+        }
     }
 
-    private class PhotoAdapter(private val galleryItems: List<GalleryItem>)
-        : RecyclerView.Adapter<PhotoHolder>() {
+    private class PhotoAdapter
+        : PagedListAdapter<Photo, PhotoHolder>(PhotoDiffCallback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
-            val textView = TextView(parent.context)
-            return PhotoHolder(textView)
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.photo_item, parent, false)
+
+            return PhotoHolder(view)
         }
 
-        override fun getItemCount(): Int  = galleryItems.size
-
         override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
-            galleryItems[position].also {
-                holder.bindTitle(it.title)
+            val photo = getItem(position)
+            photo?.let { holder.bind(photo) }
+        }
+
+        companion object {
+            val PhotoDiffCallback = object : DiffUtil.ItemCallback<Photo>() {
+                override fun areItemsTheSame(oldItem: Photo, newItem: Photo): Boolean {
+                    return oldItem.id == newItem.id
+                }
+
+                override fun areContentsTheSame(oldItem: Photo, newItem: Photo): Boolean {
+                    return oldItem == newItem
+                }
             }
         }
     }

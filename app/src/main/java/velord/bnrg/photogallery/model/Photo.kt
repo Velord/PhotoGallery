@@ -1,6 +1,6 @@
 package velord.bnrg.photogallery.model
 
-data class GalleryItem(
+data class Photo(
   var id: String = "",
   var title: String = "",
   var url: String = "",

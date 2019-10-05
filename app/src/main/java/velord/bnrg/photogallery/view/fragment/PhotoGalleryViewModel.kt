@@ -1,34 +1,37 @@
 package velord.bnrg.photogallery.view.fragment
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import velord.bnrg.photogallery.api.FlickrFetchr
-import velord.bnrg.photogallery.model.GalleryItem
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
+import velord.bnrg.photogallery.model.Photo
+import velord.bnrg.photogallery.model.PhotoDataSource
+import velord.bnrg.photogallery.model.PhotoDataSourceFactory
+
 
 private const val TAG = "PhotoGalleryViewModel"
 
 class PhotoGalleryViewModel : ViewModel() {
 
-    private val flickrFetch = FlickrFetchr()
+    private val pageSize = 100
+    
+    private var liveDataSource: LiveData<PhotoDataSource>
+    var photoPagedList: LiveData<PagedList<Photo>>
 
-    val photos = flickrFetch.fetchPhotos()
-    val contest = flickrFetch.fetchContest()
+    init {
+        val itemDataSourceFactory = PhotoDataSourceFactory()
+        liveDataSource = itemDataSourceFactory.photoDataSource
 
-    private fun <T> fetchContentWithObserver(owner: LifecycleOwner,
-                                    obs: Observer<T>,
-                                    fetchContent: () -> LiveData<T> ): LiveData<T> {
-        return fetchContent().apply { observe(owner, obs) }
-    }
+        val config = PagedList.Config.Builder()
+            .setPageSize(pageSize)
+            .setInitialLoadSizeHint(pageSize * 3)
+            .setPrefetchDistance(pageSize)
+            .setEnablePlaceholders(false)
+            .build()
 
-    val contestWithObserver: (LifecycleOwner, Observer<String>)
-    -> LiveData<String> = { owner, observer ->
-        fetchContentWithObserver(owner, observer, { contest })
-    }
+        photoPagedList = LivePagedListBuilder(itemDataSourceFactory, config)
+            .setInitialLoadKey(0)
+            .build()
 
-    val photosWithObserver: (LifecycleOwner, Observer<List<GalleryItem>>)
-    -> LiveData<List<GalleryItem>> = { owner, observer ->
-        fetchContentWithObserver(owner, observer, { photos })
     }
 }
