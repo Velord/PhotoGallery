@@ -1,17 +1,12 @@
 package velord.bnrg.photogallery.view.fragment
 
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -19,8 +14,8 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import velord.bnrg.photogallery.R
-import velord.bnrg.photogallery.ThumbnailDownloader
 import velord.bnrg.photogallery.model.Photo
 
 
@@ -37,7 +32,6 @@ class PhotoGalleryFragment : Fragment() {
     }
 
     private lateinit var  photoRV: RecyclerView
-    private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
 
     private val vtoRv = object :
         ViewTreeObserver.OnGlobalLayoutListener{
@@ -60,31 +54,9 @@ class PhotoGalleryFragment : Fragment() {
     ): View? {
         return inflater.inflate(
             R.layout.photo_gallery_fragment, container, false).apply {
-            viewLifecycleOwner.lifecycle.addObserver(
-                thumbnailDownloader.viewLifecycleObserver
-            )
             initViews(this)
             initAdapter()
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        retainInstance = true
-
-        val responseHandler = Handler()
-        thumbnailDownloader =
-            ThumbnailDownloader(responseHandler) { photoHolder, bitmap ->
-                val drawable = BitmapDrawable(resources, bitmap)
-                photoHolder.bindDrawable(drawable)
-            }
-        lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        lifecycle.removeObserver(thumbnailDownloader.fragmentLifecycleObserver)
     }
 
     private fun initAdapter() {
@@ -104,10 +76,16 @@ class PhotoGalleryFragment : Fragment() {
         }
     }
 
-    private inner class PhotoHolder(view: ImageView)
-        : RecyclerView.ViewHolder(view) {
+    private inner class PhotoHolder(private val itemImageView: ImageView)
+        : RecyclerView.ViewHolder(itemImageView) {
 
-        val bindDrawable: (Drawable) -> Unit = view::setImageDrawable
+        fun bindGalleryItem(photo: Photo) {
+            Glide
+                .with(itemImageView)
+                .load(photo.url)
+                .placeholder(R.drawable.bill_up_close)
+                .into(itemImageView)
+        }
     }
 
 
@@ -135,13 +113,7 @@ class PhotoGalleryFragment : Fragment() {
         override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
             val photo = getItem(position)
             photo?.let {
-                thumbnailDownloader.queueThumbnail(holder, photo.url)
-
-                val placeHolder: Drawable = ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.bill_up_close
-                ) ?: ColorDrawable()
-                holder.bindDrawable(placeHolder)
+                holder.bindGalleryItem(it)
             }
         }
     }
