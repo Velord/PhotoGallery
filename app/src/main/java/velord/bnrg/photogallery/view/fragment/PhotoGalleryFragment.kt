@@ -65,13 +65,25 @@ class PhotoGalleryFragment : Fragment() {
         }
     }
 
-    private fun initAdapter() {
-        val photoAdapter = PhotoAdapter()
-        viewModel.photoPagedList.observe(
+    private fun observePhotoPagedList(photoAdapter: PhotoAdapter) {
+        // Challenge: Observing View LifecycleOwner LiveData
+        viewLifecycleOwnerLiveData.observe(
             viewLifecycleOwner,
             Observer {
-            photoAdapter.submitList(it)
-        })
+                if(it != null) {
+                    viewModel.photoPagedList.observe(
+                        viewLifecycleOwner,
+                        Observer {
+                            photoAdapter.submitList(it)
+                        })
+                }
+            }
+        )
+    }
+
+    private fun initAdapter() {
+        val photoAdapter = PhotoAdapter()
+        observePhotoPagedList(photoAdapter)
         photoRV.adapter = photoAdapter
     }
 
