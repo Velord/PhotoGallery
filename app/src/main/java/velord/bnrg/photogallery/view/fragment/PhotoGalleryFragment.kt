@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.bnrg.photogallery.R
 import velord.bnrg.photogallery.model.Photo
 
@@ -75,7 +76,8 @@ class PhotoGalleryFragment : Fragment() {
                         viewLifecycleOwner,
                         Observer {
                             photoAdapter.submitList(it)
-                        })
+                        }
+                    )
                 }
             }
         )
@@ -101,6 +103,7 @@ class PhotoGalleryFragment : Fragment() {
             Glide
                 .with(itemImageView)
                 .load(photo.url)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .placeholder(R.drawable.bill_up_close)
                 .into(itemImageView)
         }
