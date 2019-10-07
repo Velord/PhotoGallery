@@ -1,6 +1,7 @@
 package velord.bnrg.photogallery.view.fragment
 
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -46,6 +47,11 @@ class PhotoGalleryFragment : Fragment() {
             photoRV.setLayoutManager(GridLayoutManager(activity, columnNumber))
             photoRV.getViewTreeObserver().removeOnGlobalLayoutListener(this)
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        StrictMode.enableDefaults()
     }
 
     override fun onCreateView(
