@@ -3,12 +3,14 @@ package velord.bnrg.photogallery.repository.api
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import kotlinx.coroutines.Deferred
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 private const val apiKey = "4fe3fb6d32a99cd3c4a5c4a94290202d"
 
@@ -26,6 +28,9 @@ interface FlickrApi {
     )
     fun fetchPhotos(@Query("page")page: Int = 1):
             Deferred<Response<PhotoResponse>>
+
+    @GET
+    fun fetchUrlBytes(@Url url: String): Deferred<Response<ResponseBody>>
 
     companion object {
         fun invoke(): FlickrApi {

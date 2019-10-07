@@ -9,7 +9,7 @@ open class BaseRepository {
 
     suspend fun <T : Any> safeApiCall(call: suspend () -> Response<T>,
                                               errorMessage: String): T? {
-        val result : Result<T> = safeApiResult(call,errorMessage)
+        val result : Result<T> = safeApiResult(call, errorMessage)
         var data : T? = null
 
         when(result) {
