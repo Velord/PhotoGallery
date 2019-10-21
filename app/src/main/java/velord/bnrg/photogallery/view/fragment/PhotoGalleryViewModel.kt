@@ -8,10 +8,7 @@ import androidx.lifecycle.Transformations
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import kotlinx.coroutines.runBlocking
-import velord.bnrg.photogallery.model.Photo
-import velord.bnrg.photogallery.model.PhotoDataSource
-import velord.bnrg.photogallery.model.PhotoDataSourceFactory
-import velord.bnrg.photogallery.model.QueryPreferences
+import velord.bnrg.photogallery.model.*
 import velord.bnrg.photogallery.repository.FlickrRepository
 import velord.bnrg.photogallery.repository.api.FlickrApi
 
@@ -30,7 +27,7 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
         .setEnablePlaceholders(false)
         .build()
 
-    private var itemDataSourceFactory = PhotoDataSourceFactory { listOf() }
+    private var itemDataSourceFactory = PhotoDataSourceFactory()
     private val liveDataSource = itemDataSourceFactory.photoDataSource
 
     var photoPagedList: LiveData<PagedList<Photo>>
@@ -45,14 +42,10 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
         photoPagedList = Transformations.switchMap(mutableSearchTerm) {
             changeDataSourceToFetchSearchPhotos(it)
             itemDataSourceFactory = if (it.isBlank()) {
-                PhotoDataSourceFactory {
-                    runBlocking {
-                        flickrRepository.fetchInterestingnessPhotos()
-                    }
-                }
+                PhotoDataSourceFactory(InterestingnessPhotoDataSource())
             } else {
                 val newDataSource = liveDataSource.value
-                PhotoDataSourceFactory(newDataSource!!.f)
+                PhotoDataSourceFactory(PhotoDataSource(newDataSource!!.f))
             }
             LivePagedListBuilder(itemDataSourceFactory, config).build()
         }

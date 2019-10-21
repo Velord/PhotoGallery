@@ -10,10 +10,8 @@ import velord.bnrg.photogallery.utils.scope
 
 private const val TAG = "PhotoDataSource"
 
-class PhotoDataSource(val f: () -> List<Photo>) : PositionalDataSource<Photo>() {
-    private val repository =
-        FlickrRepository(FlickrApi.invoke())
-    private var page = 1
+open class PhotoDataSource(
+    val f: () -> List<Photo> = { listOf() } ) : PositionalDataSource<Photo>() {
 
     override fun loadInitial(params: LoadInitialParams,
                              callback: LoadInitialCallback<Photo>) {
@@ -32,4 +30,28 @@ class PhotoDataSource(val f: () -> List<Photo>) : PositionalDataSource<Photo>() 
     }
 
     fun cancelAllRequests() = coroutineContext().cancel()
+}
+
+
+class InterestingnessPhotoDataSource : PhotoDataSource() {
+    private val repository =
+        FlickrRepository(FlickrApi.invoke())
+    private var page = 1
+
+    override fun loadInitial(params: LoadInitialParams,
+                             callback: LoadInitialCallback<Photo>) {
+        scope().launch {
+            val data = repository.fetchInterestingnessPhotos(page)
+            callback.onResult(data, data.size)
+        }
+    }
+
+    override fun loadRange(params: LoadRangeParams,
+                           callback: LoadRangeCallback<Photo>) {
+        scope().launch {
+            val data = repository.fetchInterestingnessPhotos(++page)
+            callback.onResult(data)
+        }
+    }
+
 }
