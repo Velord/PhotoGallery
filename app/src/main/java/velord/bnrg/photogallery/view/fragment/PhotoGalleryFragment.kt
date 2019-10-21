@@ -81,6 +81,10 @@ class PhotoGalleryFragment : Fragment() {
                     Log.d(TAG, "QueryTextSubmit: $query")
                     query?.let {
                         viewModel.mutableSearchTerm.value = it
+                        //hide the soft keyboard and collapse the SearchView.
+                        searchItem.collapseActionView()
+                        searchView.onActionViewCollapsed()
+                        return false
                     }
                     return true
                 }
@@ -94,6 +98,7 @@ class PhotoGalleryFragment : Fragment() {
             setOnSearchClickListener {
                 searchView.setQuery(viewModel.searchTerm, false)
             }
+
         }
     }
 
