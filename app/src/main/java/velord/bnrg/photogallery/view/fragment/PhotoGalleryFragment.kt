@@ -6,6 +6,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -33,6 +34,7 @@ class PhotoGalleryFragment : Fragment() {
     }
 
     private lateinit var  photoRV: RecyclerView
+    private lateinit var pb: ProgressBar
 
     private val vtoRv = object :
         ViewTreeObserver.OnGlobalLayoutListener{
@@ -81,9 +83,7 @@ class PhotoGalleryFragment : Fragment() {
                     Log.d(TAG, "QueryTextSubmit: $query")
                     query?.let {
                         viewModel.mutableSearchTerm.value = it
-                        //hide the soft keyboard and collapse the SearchView.
-                        searchItem.collapseActionView()
-                        searchView.onActionViewCollapsed()
+                        changeUIAfterSubmitTextInSearchView(searchItem, searchView)
                         return false
                     }
                     return true
@@ -110,6 +110,15 @@ class PhotoGalleryFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun changeUIAfterSubmitTextInSearchView(searchItem: MenuItem,
+                                                    searchView: SearchView) {
+        //hide the soft keyboard and collapse the SearchView.
+        searchItem.collapseActionView()
+        searchView.onActionViewCollapsed()
+        //show progress bar
+        pb.visibility = View.VISIBLE
     }
 
     private fun observePhotoPagedList(photoAdapter: PhotoAdapter) {
@@ -140,12 +149,15 @@ class PhotoGalleryFragment : Fragment() {
         photoRV.apply {
             viewTreeObserver.addOnGlobalLayoutListener(vtoRv)
         }
+
+        pb = view.findViewById(R.id.photo_progress_bar)
     }
 
     private inner class PhotoHolder(private val itemImageView: ImageView)
         : RecyclerView.ViewHolder(itemImageView) {
 
         fun bindGalleryItem(photo: Photo) {
+            if (pb.visibility == View.VISIBLE) pb.visibility = View.GONE
             Glide
                 .with(itemImageView)
                 .load(photo.url)
