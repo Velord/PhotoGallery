@@ -2,12 +2,11 @@ package velord.bnrg.photogallery.view.fragment
 
 import android.os.Bundle
 import android.os.StrictMode
+import android.util.Log
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.widget.ImageView
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -45,14 +44,15 @@ class PhotoGalleryFragment : Fragment() {
             )
             val width = photoRV.getWidth()
             val columnNumber = Math.round(width / columnWidthInPixels)
-            photoRV.setLayoutManager(GridLayoutManager(activity, columnNumber))
-            photoRV.getViewTreeObserver().removeOnGlobalLayoutListener(this)
+            photoRV.layoutManager = GridLayoutManager(activity, columnNumber)
+            photoRV.viewTreeObserver.removeOnGlobalLayoutListener(this)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StrictMode.enableDefaults()
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -66,6 +66,47 @@ class PhotoGalleryFragment : Fragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_photo_gallery, menu)
+
+        val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
+        val searchView = searchItem.actionView as SearchView
+
+        searchView.apply {
+
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    Log.d(TAG, "QueryTextSubmit: $query")
+                    query?.let {
+                        viewModel.mutableSearchTerm.value = it
+                    }
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    Log.d(TAG, "QueryTextChange: $newText")
+                    return false
+                }
+            })
+
+            setOnSearchClickListener {
+                searchView.setQuery(viewModel.searchTerm, false)
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_item_clear -> {
+                viewModel.changeDataSourceToFetchSearchPhotos("")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun observePhotoPagedList(photoAdapter: PhotoAdapter) {
         // Challenge: Observing View LifecycleOwner LiveData
         viewLifecycleOwnerLiveData.observe(
@@ -74,8 +115,8 @@ class PhotoGalleryFragment : Fragment() {
                 if(it != null) {
                     viewModel.photoPagedList.observe(
                         viewLifecycleOwner,
-                        Observer {
-                            photoAdapter.submitList(it)
+                        Observer { photos ->
+                            photoAdapter.submitList(photos)
                         }
                     )
                 }
@@ -110,7 +151,7 @@ class PhotoGalleryFragment : Fragment() {
     }
 
 
-    private val PhotoDiffCallback =
+    private val photoDiffCallback =
         object : DiffUtil.ItemCallback<Photo>() {
             override fun areItemsTheSame(oldItem: Photo,
                                          newItem: Photo): Boolean =
@@ -122,7 +163,7 @@ class PhotoGalleryFragment : Fragment() {
                 oldItem == newItem
         }
     private inner class PhotoAdapter
-        : PagedListAdapter<Photo, PhotoHolder>(PhotoDiffCallback) {
+        : PagedListAdapter<Photo, PhotoHolder>(photoDiffCallback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
             val view = LayoutInflater.from(parent.context)
