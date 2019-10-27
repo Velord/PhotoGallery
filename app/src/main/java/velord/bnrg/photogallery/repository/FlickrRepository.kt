@@ -40,7 +40,7 @@ class FlickrRepository(private val flickrApi: FlickrApi) : BaseRepository() {
         fetchPhotoList( flickrApi.fetchSearchPhotosAsync(query),
             "${TAG}: Error while fetching photos by keyword search" )
 
-    suspend fun fetchPhotoList(
+    private suspend fun fetchPhotoList(
         flickrRequest: Deferred<Response<PhotoResponse>>,
         errorMessage: String): List<Photo>  =
         safeApiCall({ flickrRequest.await() }, errorMessage)?.galleryItems ?: listOf()

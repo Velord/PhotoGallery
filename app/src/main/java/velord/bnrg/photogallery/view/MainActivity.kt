@@ -1,5 +1,7 @@
 package velord.bnrg.photogallery.view
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
 import androidx.appcompat.app.AppCompatActivity
@@ -28,4 +30,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initPhotoGalleryFragment() =
         initFragment(sf, PhotoGalleryFragment(), R.id.fragment_container)
+
+    companion object {
+
+        fun newIntent(context: Context): Intent =
+            Intent(context, MainActivity::class.java)
+    }
 }

@@ -8,7 +8,11 @@ import androidx.lifecycle.Transformations
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import kotlinx.coroutines.runBlocking
-import velord.bnrg.photogallery.model.*
+import velord.bnrg.photogallery.model.Photo
+import velord.bnrg.photogallery.model.QueryPreferences
+import velord.bnrg.photogallery.model.pagedListDataSource.InterestingnessPhotoDataSource
+import velord.bnrg.photogallery.model.pagedListDataSource.PhotoDataSource
+import velord.bnrg.photogallery.model.pagedListDataSource.PhotoDataSourceFactory
 import velord.bnrg.photogallery.repository.FlickrRepository
 import velord.bnrg.photogallery.repository.api.FlickrApi
 
@@ -19,7 +23,7 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
 
     private val flickrRepository = FlickrRepository(FlickrApi.invoke())
 
-    private val pageSize = 10
+    private val pageSize = 30
     private val config = PagedList.Config.Builder()
         .setPageSize(pageSize)
         .setInitialLoadSizeHint(pageSize * 3)
@@ -27,7 +31,8 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
         .setEnablePlaceholders(false)
         .build()
 
-    private var itemDataSourceFactory = PhotoDataSourceFactory()
+    private var itemDataSourceFactory =
+        PhotoDataSourceFactory()
     private val liveDataSource = itemDataSourceFactory.photoDataSource
 
     var photoPagedList: LiveData<PagedList<Photo>>
@@ -41,17 +46,22 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
 
         photoPagedList = Transformations.switchMap(mutableSearchTerm) {
             changeDataSourceToFetchSearchPhotos(it)
-            itemDataSourceFactory = if (it.isBlank()) {
-                PhotoDataSourceFactory(InterestingnessPhotoDataSource())
-            } else {
-                val newDataSource = liveDataSource.value
-                PhotoDataSourceFactory(PhotoDataSource(newDataSource!!.f))
-            }
+            itemDataSourceFactory =
+                if (it.isBlank()) {
+                    PhotoDataSourceFactory(InterestingnessPhotoDataSource())
+                } else {
+                    val newDataSource = liveDataSource.value
+                    PhotoDataSourceFactory(
+                        PhotoDataSource(
+                            newDataSource!!.f
+                        )
+                    )
+                }
             LivePagedListBuilder(itemDataSourceFactory, config).build()
         }
     }
 
-    fun changeDataSourceToFetchSearchPhotos(query: String) {
+    private fun changeDataSourceToFetchSearchPhotos(query: String) {
         QueryPreferences.setStoredQuery(app, query)
         liveDataSource.value = PhotoDataSource {
             runBlocking { flickrRepository.fetchSearchPhotos(query) }

@@ -15,13 +15,18 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.bnrg.photogallery.R
 import velord.bnrg.photogallery.model.Photo
+import velord.bnrg.photogallery.model.QueryPreferences
+import velord.bnrg.photogallery.model.worker.PollWorker
+import java.util.concurrent.TimeUnit
 
 
 private const val TAG = "PhotoGalleryFragment"
+private const val POLL_WORK = "POLL_WORK"
 
 class PhotoGalleryFragment : Fragment() {
 
@@ -100,20 +105,63 @@ class PhotoGalleryFragment : Fragment() {
             }
 
         }
+
+        menu.findItem(R.id.menu_item_toggle_polling).apply {
+            val isPolling = QueryPreferences.isPolling(requireContext())
+            val toggleItemTitle =
+                if (isPolling) R.string.stop_polling
+                else R.string.start_polling
+            setTitle(toggleItemTitle)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_item_clear -> {
-                viewModel.changeDataSourceToFetchSearchPhotos("")
+                viewModel.mutableSearchTerm.value = ""
+                changeUIAfterSubmitTextInSearchView(item)
+                true
+            }
+            R.id.menu_item_toggle_polling -> {
+                val isPolling = QueryPreferences.isPolling(requireContext())
+                if (isPolling) {
+                    cancelPollWork()
+                    QueryPreferences.setPolling(requireContext(), false)
+                } else {
+                    initPollWorker()
+                    QueryPreferences.setPolling(requireContext(), true)
+                }
+
+                activity?.invalidateOptionsMenu()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
+    private fun cancelPollWork() {
+        WorkManager.getInstance().cancelUniqueWork(POLL_WORK)
+    }
+
+    private fun initPollWorker() {
+        val constraints = Constraints
+            .Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .build()
+        val periodicRequest = PeriodicWorkRequest
+            .Builder(PollWorker::class.java, 15, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance()
+            .enqueueUniquePeriodicWork(
+                POLL_WORK,
+                ExistingPeriodicWorkPolicy.KEEP,
+                periodicRequest)
+    }
+
     private fun changeUIAfterSubmitTextInSearchView(searchItem: MenuItem,
-                                                    searchView: SearchView) {
+                                                    searchView: SearchView = searchItem.actionView as SearchView) {
         //hide the soft keyboard and collapse the SearchView.
         searchItem.collapseActionView()
         searchView.onActionViewCollapsed()
@@ -153,21 +201,6 @@ class PhotoGalleryFragment : Fragment() {
         pb = view.findViewById(R.id.photo_progress_bar)
     }
 
-    private inner class PhotoHolder(private val itemImageView: ImageView)
-        : RecyclerView.ViewHolder(itemImageView) {
-
-        fun bindGalleryItem(photo: Photo) {
-            if (pb.visibility == View.VISIBLE) pb.visibility = View.GONE
-            Glide
-                .with(itemImageView)
-                .load(photo.url)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .placeholder(R.drawable.bill_up_close)
-                .into(itemImageView)
-        }
-    }
-
-
     private val photoDiffCallback =
         object : DiffUtil.ItemCallback<Photo>() {
             override fun areItemsTheSame(oldItem: Photo,
@@ -180,7 +213,7 @@ class PhotoGalleryFragment : Fragment() {
                 oldItem == newItem
         }
     private inner class PhotoAdapter
-        : PagedListAdapter<Photo, PhotoHolder>(photoDiffCallback) {
+        : PagedListAdapter<Photo, PhotoAdapter.PhotoHolder>(photoDiffCallback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
             val view = LayoutInflater.from(parent.context)
@@ -195,5 +228,20 @@ class PhotoGalleryFragment : Fragment() {
                 holder.bindGalleryItem(it)
             }
         }
+
+        private inner class PhotoHolder(private val itemImageView: ImageView)
+            : RecyclerView.ViewHolder(itemImageView) {
+
+            fun bindGalleryItem(photo: Photo) {
+                if (pb.visibility == View.VISIBLE) pb.visibility = View.GONE
+                Glide
+                    .with(itemImageView)
+                    .load(photo.url)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .placeholder(R.drawable.bill_up_close)
+                    .into(itemImageView)
+            }
+        }
+
     }
 }

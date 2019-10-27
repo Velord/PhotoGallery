@@ -1,7 +1,8 @@
-package velord.bnrg.photogallery.model
+package velord.bnrg.photogallery.model.pagedListDataSource
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
+import velord.bnrg.photogallery.model.Photo
 
 
 data class PhotoDataSourceFactory(
