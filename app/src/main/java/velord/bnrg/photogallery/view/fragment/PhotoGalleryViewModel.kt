@@ -9,12 +9,12 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import kotlinx.coroutines.runBlocking
 import velord.bnrg.photogallery.model.Photo
-import velord.bnrg.photogallery.model.QueryPreferences
 import velord.bnrg.photogallery.model.pagedListDataSource.InterestingnessPhotoDataSource
 import velord.bnrg.photogallery.model.pagedListDataSource.PhotoDataSource
 import velord.bnrg.photogallery.model.pagedListDataSource.PhotoDataSourceFactory
 import velord.bnrg.photogallery.repository.FlickrRepository
 import velord.bnrg.photogallery.repository.api.FlickrApi
+import velord.bnrg.photogallery.sharedPreferences.QueryPreferences
 
 
 private const val TAG = "PhotoGalleryViewModel"

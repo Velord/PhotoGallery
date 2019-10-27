@@ -8,7 +8,6 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedListAdapter
@@ -20,15 +19,15 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.bnrg.photogallery.R
 import velord.bnrg.photogallery.model.Photo
-import velord.bnrg.photogallery.model.QueryPreferences
 import velord.bnrg.photogallery.model.worker.PollWorker
+import velord.bnrg.photogallery.sharedPreferences.QueryPreferences
 import java.util.concurrent.TimeUnit
 
 
 private const val TAG = "PhotoGalleryFragment"
 private const val POLL_WORK = "POLL_WORK"
 
-class PhotoGalleryFragment : Fragment() {
+class PhotoGalleryFragment : VisibleFragment() {
 
     companion object {
         fun newInstance() = PhotoGalleryFragment()

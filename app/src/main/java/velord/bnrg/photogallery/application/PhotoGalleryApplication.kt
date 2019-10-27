@@ -1,4 +1,4 @@
-package velord.bnrg.photogallery.model
+package velord.bnrg.photogallery.application
 
 import android.app.Application
 import android.app.NotificationChannel
