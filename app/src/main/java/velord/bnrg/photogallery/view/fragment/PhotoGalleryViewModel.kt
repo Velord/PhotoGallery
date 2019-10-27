@@ -1,6 +1,7 @@
 package velord.bnrg.photogallery.view.fragment
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -62,6 +63,7 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
     }
 
     private fun changeDataSourceToFetchSearchPhotos(query: String) {
+        Log.i(TAG, "Change data source")
         QueryPreferences.setStoredQuery(app, query)
         liveDataSource.value = PhotoDataSource {
             runBlocking { flickrRepository.fetchSearchPhotos(query) }

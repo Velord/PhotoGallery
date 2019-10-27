@@ -21,7 +21,7 @@ import velord.bnrg.photogallery.view.MainActivity
 private const val TAG = "PollWorker"
 
 class PollWorker(
-    val context: Context,
+    private val context: Context,
     workerParams: WorkerParameters
 ): Worker(context, workerParams) {
 
@@ -29,7 +29,7 @@ class PollWorker(
 
     override fun doWork(): Result {
         val query = QueryPreferences.getStoredQuery(context)
-        val lastResultId = QueryPreferences.getLastresultId(context)
+        val lastResultId = QueryPreferences.getLastResultId(context)
         val items: List<Photo> = fetchPhoto(query)
 
         if (items.isEmpty()) Result.success()

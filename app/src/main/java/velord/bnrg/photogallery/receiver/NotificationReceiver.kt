@@ -20,9 +20,9 @@ class NotificationReceiver : BroadcastReceiver() {
         // A foreground activity canceled the broadcast
             return
 
-        val requestCode =  intent!!.getIntExtra(PollWorker.REQUEST_CODE, 0)
+        val requestCode =  intent.getIntExtra(PollWorker.REQUEST_CODE, 0)
         val notification: Notification =
-            intent.getParcelableExtra(PollWorker.NOTIFICATION)
+            intent.getParcelableExtra(PollWorker.NOTIFICATION)!!
 
         val notificationManager = NotificationManagerCompat.from(context!!)
         notificationManager.notify(requestCode, notification)

@@ -20,7 +20,7 @@ object QueryPreferences {
                 putString(PREF_SEARCH_QUERY, query)
             }
 
-    fun getLastresultId(context: Context): String =
+    fun getLastResultId(context: Context): String =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getString(PREF_LAST_RESULT_ID, "")!!
 

@@ -5,9 +5,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.util.Log
 import androidx.fragment.app.Fragment
 import velord.bnrg.photogallery.model.worker.PollWorker
 
+private const val TAG = "VisibleFragment"
 
 //This class will be a generic fragment that hides foreground notifications
 abstract class VisibleFragment : Fragment() {
@@ -15,6 +17,7 @@ abstract class VisibleFragment : Fragment() {
     private val onShowNotification = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "Received intent")
             // If we receive this, we're visible, so cancel the notification
             resultCode = Activity.RESULT_CANCELED
         }

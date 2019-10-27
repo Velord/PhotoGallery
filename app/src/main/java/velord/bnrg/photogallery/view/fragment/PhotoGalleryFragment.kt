@@ -22,16 +22,13 @@ import velord.bnrg.photogallery.model.Photo
 import velord.bnrg.photogallery.model.worker.PollWorker
 import velord.bnrg.photogallery.sharedPreferences.QueryPreferences
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 
 private const val TAG = "PhotoGalleryFragment"
 private const val POLL_WORK = "POLL_WORK"
 
 class PhotoGalleryFragment : VisibleFragment() {
-
-    companion object {
-        fun newInstance() = PhotoGalleryFragment()
-    }
 
     private val viewModel: PhotoGalleryViewModel by lazy {
         ViewModelProviders.of(this).get(PhotoGalleryViewModel::class.java)
@@ -48,8 +45,8 @@ class PhotoGalleryFragment : VisibleFragment() {
                 140f,
                 activity!!.resources.displayMetrics
             )
-            val width = photoRV.getWidth()
-            val columnNumber = Math.round(width / columnWidthInPixels)
+            val width = photoRV.width
+            val columnNumber = (width / columnWidthInPixels).roundToInt()
             photoRV.layoutManager = GridLayoutManager(activity, columnNumber)
             photoRV.viewTreeObserver.removeOnGlobalLayoutListener(this)
         }

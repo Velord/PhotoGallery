@@ -7,8 +7,6 @@ import velord.bnrg.photogallery.model.Photo
 import velord.bnrg.photogallery.utils.coroutineContext
 import velord.bnrg.photogallery.utils.scope
 
-private const val TAG = "PhotoDataSource"
-
 open class PhotoDataSource(
     val f: () -> List<Photo> = { listOf() } ) : PositionalDataSource<Photo>() {
 
