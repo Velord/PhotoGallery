@@ -1,7 +1,6 @@
-package velord.bnrg.photogallery.repository.api
+package velord.bnrg.photogallery.model.photo
 
 import com.google.gson.annotations.SerializedName
-import velord.bnrg.photogallery.model.Photo
 
 class PhotoResponse {
     @SerializedName("photos")

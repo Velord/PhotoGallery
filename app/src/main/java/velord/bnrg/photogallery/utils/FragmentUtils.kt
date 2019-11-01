@@ -3,10 +3,10 @@ package velord.bnrg.photogallery.utils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
-val replaceFragment: (FragmentManager, Int, Fragment) -> Unit =
-    { fm, layout, fragment ->
+val replaceFragment: (FragmentManager, Fragment, Int) -> Unit =
+    { fm, fragment, containerId ->
         fm.beginTransaction()
-            .replace(layout, fragment)
+            .replace(containerId, fragment)
             .addToBackStack(null)
             .commit()
     }
@@ -20,7 +20,7 @@ val initFragment: (FragmentManager, Fragment, Int) -> Unit =
             addFragment(fm, fragment, containerId)
     }
 
-val addFragment: (FragmentManager, Fragment, Int) -> Unit =
+private val addFragment: (FragmentManager, Fragment, Int) -> Unit =
     { fm,  fragment, containerId ->
         fm.beginTransaction()
             .add(containerId, fragment)

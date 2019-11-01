@@ -12,11 +12,11 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.runBlocking
 import velord.bnrg.photogallery.R
 import velord.bnrg.photogallery.application.NOTIFICATION_CHANNEL_ID
-import velord.bnrg.photogallery.model.Photo
+import velord.bnrg.photogallery.application.sharedPreferences.QueryPreferences
+import velord.bnrg.photogallery.model.photo.Photo
 import velord.bnrg.photogallery.repository.FlickrRepository
 import velord.bnrg.photogallery.repository.api.FlickrApi
-import velord.bnrg.photogallery.sharedPreferences.QueryPreferences
-import velord.bnrg.photogallery.view.MainActivity
+import velord.bnrg.photogallery.view.activity.MainActivity
 
 private const val TAG = "PollWorker"
 

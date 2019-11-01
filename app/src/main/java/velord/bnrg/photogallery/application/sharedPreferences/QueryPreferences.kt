@@ -1,4 +1,4 @@
-package velord.bnrg.photogallery.sharedPreferences
+package velord.bnrg.photogallery.application.sharedPreferences
 
 import android.content.Context
 import android.preference.PreferenceManager

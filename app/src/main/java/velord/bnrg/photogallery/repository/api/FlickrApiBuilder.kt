@@ -6,6 +6,8 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import velord.bnrg.photogallery.model.photo.PhotoDeserializer
+import velord.bnrg.photogallery.model.photo.PhotoResponse
 
 class FlickrApiBuilder {
     fun invoke(): FlickrApi {

@@ -18,9 +18,10 @@ import androidx.work.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.bnrg.photogallery.R
-import velord.bnrg.photogallery.model.Photo
+import velord.bnrg.photogallery.application.sharedPreferences.QueryPreferences
+import velord.bnrg.photogallery.model.photo.Photo
 import velord.bnrg.photogallery.model.worker.PollWorker
-import velord.bnrg.photogallery.sharedPreferences.QueryPreferences
+import velord.bnrg.photogallery.view.activity.PhotoPageActivity
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
@@ -153,7 +154,8 @@ class PhotoGalleryFragment : VisibleFragment() {
             .enqueueUniquePeriodicWork(
                 POLL_WORK,
                 ExistingPeriodicWorkPolicy.KEEP,
-                periodicRequest)
+                periodicRequest
+            )
     }
 
     private fun changeUIAfterSubmitTextInSearchView(searchItem: MenuItem,
@@ -197,15 +199,21 @@ class PhotoGalleryFragment : VisibleFragment() {
         pb = view.findViewById(R.id.photo_progress_bar)
     }
 
+    private fun hideProgressBar() {
+        if (pb.visibility == View.VISIBLE) pb.visibility = View.GONE
+    }
+
     private val photoDiffCallback =
         object : DiffUtil.ItemCallback<Photo>() {
             override fun areItemsTheSame(oldItem: Photo,
-                                         newItem: Photo): Boolean =
+                                         newItem: Photo
+            ): Boolean =
                 oldItem.id == newItem.id
 
 
             override fun areContentsTheSame(oldItem: Photo,
-                                            newItem: Photo): Boolean =
+                                            newItem: Photo
+            ): Boolean =
                 oldItem == newItem
         }
     private inner class PhotoAdapter
@@ -215,21 +223,36 @@ class PhotoGalleryFragment : VisibleFragment() {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.photo_item, parent, false) as ImageView
 
+            hideProgressBar()
             return PhotoHolder(view)
         }
 
         override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
             val photo = getItem(position)
             photo?.let {
-                holder.bindGalleryItem(it)
+                holder.bindPhoto(it)
             }
         }
 
         private inner class PhotoHolder(private val itemImageView: ImageView)
-            : RecyclerView.ViewHolder(itemImageView) {
+            : RecyclerView.ViewHolder(itemImageView),
+            View.OnClickListener {
 
-            fun bindGalleryItem(photo: Photo) {
-                if (pb.visibility == View.VISIBLE) pb.visibility = View.GONE
+            private lateinit var photo: Photo
+
+            init {
+                itemView.setOnClickListener(this)
+            }
+
+            override fun onClick(v: View?) {
+                val intent = PhotoPageActivity
+                    .newIntent(requireContext(), photo.photoPageUri)
+                startActivity(intent)
+            }
+
+            fun bindPhoto(photo: Photo) {
+                this.photo = photo
+
                 Glide
                     .with(itemImageView)
                     .load(photo.url)

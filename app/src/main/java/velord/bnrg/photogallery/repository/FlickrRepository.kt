@@ -6,9 +6,9 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
-import velord.bnrg.photogallery.model.Photo
+import velord.bnrg.photogallery.model.photo.Photo
+import velord.bnrg.photogallery.model.photo.PhotoResponse
 import velord.bnrg.photogallery.repository.api.FlickrApi
-import velord.bnrg.photogallery.repository.api.PhotoResponse
 
 private const val TAG = "FlickrRepository"
 

@@ -1,4 +1,4 @@
-package velord.bnrg.photogallery.receiver
+package velord.bnrg.photogallery.application.receiver
 
 import android.app.Activity
 import android.app.Notification

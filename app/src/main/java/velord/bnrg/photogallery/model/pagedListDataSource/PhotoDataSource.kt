@@ -3,7 +3,7 @@ package velord.bnrg.photogallery.model.pagedListDataSource
 import androidx.paging.PositionalDataSource
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import velord.bnrg.photogallery.model.Photo
+import velord.bnrg.photogallery.model.photo.Photo
 import velord.bnrg.photogallery.utils.coroutineContext
 import velord.bnrg.photogallery.utils.scope
 

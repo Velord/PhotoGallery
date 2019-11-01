@@ -1,4 +1,4 @@
-package velord.bnrg.photogallery.view
+package velord.bnrg.photogallery.view.activity
 
 import android.content.Context
 import android.content.Intent
