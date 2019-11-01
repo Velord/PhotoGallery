@@ -1,6 +1,7 @@
 package velord.bnrg.photogallery.view.fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,9 +18,25 @@ private const val ARG_URI = "photo_page_url"
 
 class PhotoPageFragment : VisibleFragment() {
 
+    interface Callbacks {
+        fun pressBack(webView: WebView)
+    }
+
+    private var callback: Callbacks? = null
+
     private lateinit var uri: Uri
     private lateinit var webView: WebView
     private lateinit var pb: ProgressBar
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +82,7 @@ class PhotoPageFragment : VisibleFragment() {
             webViewClient =  WebViewClient()
             loadUrl(uri.toString())
         }
+        callback?.pressBack(webView)
     }
 
     private fun initProgressBar(view: View) {
